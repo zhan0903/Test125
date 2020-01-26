@@ -169,7 +169,7 @@ class function_B(RLNN):
             in_features=list(hidden_sizes)[-1], out_features=self.action_dim)
 
     def forward(self, x):
-        output = self.net([x])
+        output = self.net(torch.Tensor([x]))
         mu = self.mu(output)
         # mu = torch.tanh(mu)
         return mu.cpu().detach().numpy()[0]
