@@ -246,6 +246,9 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    ray.init(include_webui=False, ignore_reinit_error=True, object_store_memory=10000000000,memory=10000000000)#10000000000,memory=10000000000)
+
+
 
     engine = Engine.remote(args)
     timesteps = 0
