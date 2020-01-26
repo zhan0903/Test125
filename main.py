@@ -141,7 +141,7 @@ class function_B(RLNN):
     def __init__(self, in_features, hidden_sizes, activation):
         super(function_B, self).__init__()
         self.action_dim = 1 # action_space.shape[0]
-        self.output_activation = output_activation
+        # self.output_activation = output_activation
         self.mean = None
         self.std = None
         self.values = []
