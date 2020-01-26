@@ -185,7 +185,7 @@ class function_B(RLNN):
 
 
 def _calucalue_z_test(function_A,function_B):
-    ray_get_and_free(function_B.mean_std.remote())
+    function_B.mean_std()
 
     z = (function_A.mean-function_B.mean)/math.sqrt(function_A.std+function_B.std)
     return z
