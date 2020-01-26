@@ -73,6 +73,12 @@ class MLP(nn.Module):
         return x.squeeze() if self.output_squeeze else x
 
 
+def to_numpy(var):
+    return var.cpu().data.numpy() if USE_CUDA else var.data.numpy()
+
+
+
+
 class RLNN(nn.Module):
 
     def __init__(self):
