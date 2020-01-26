@@ -3,6 +3,7 @@ import ray,copy,torch,time
 import torch.nn as nn
 import statistics
 import numpy as np
+from copy import deepcopy
 
 
 
@@ -190,8 +191,8 @@ class function_A(object):
         self.mean_std()
 
     def calculate(self,x):
-        return np.log(x)
-        # return pow(2,x)
+        # return np.log(x)
+        return pow(x,2)
 
     def mean_std(self):
         for x in range(-1000,1001):
