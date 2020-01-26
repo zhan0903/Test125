@@ -244,6 +244,8 @@ if __name__ == '__main__':
     parser.add_argument('--damp_limit', default=1e-5, type=float)
     parser.add_argument('--elitism', dest="elitism",  action='store_true') # defult False
 
+    args = parser.parse_args()
+
 
     engine = Engine.remote(args)
     timesteps = 0
