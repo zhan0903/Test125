@@ -216,6 +216,7 @@ class function_A(object):
 @ray.remote
 class Engine(object):
     def __init__(self,args):
+        self.args = args
 
         self.actor = function_B(1,(256, 256), torch.relu)
         self.es = sepCEM(self.actor.get_size(), mu_init=self.actor.get_params(), sigma_init=args.sigma_init, damp=args.damp, damp_limit=args.damp_limit,
