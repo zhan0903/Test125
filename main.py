@@ -7,6 +7,11 @@ from copy import deepcopy
 
 
 
+USE_CUDA = torch.cuda.is_available()
+
+
+
+
 def ray_get_and_free(object_ids):
     """Call ray.get and then queue the object ids for deletion.
 
