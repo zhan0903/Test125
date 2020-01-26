@@ -2,6 +2,7 @@ from cem import sepCEM
 import ray,copy,torch,time
 import torch.nn as nn
 import statistics
+import numpy as np
 
 
 
@@ -189,11 +190,12 @@ class function_A(object):
         self.mean_std()
 
     def calculate(self,x):
-        return pow(2,x)
+        return np.log(x)
+        # return pow(2,x)
 
     def mean_std(self):
         for x in range(-1000,1001):
-            y = pow(2,x)
+            y = self.calculate(x)
             self.values.append(y)
         self.mean = statistics.mean(self.values)
         self.std = statistics.pstdev(self.values)
