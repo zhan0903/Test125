@@ -139,7 +139,7 @@ class RLNN(nn.Module):
 
 class function_B(RLNN):
     def __init__(self, in_features, hidden_sizes, activation):
-        super(Deterministic_POP, self).__init__()
+        super(function_B, self).__init__()
         self.action_dim = 1 # action_space.shape[0]
         self.output_activation = output_activation
         self.mean = None
@@ -181,6 +181,7 @@ def _calucalue_z_test(function_A,function_B):
 # input x, output y
 class function_A(object):
     def __init__(self):
+        super(function_A, self).__init__()
         self.x_range = [-1000,1000]
         self.mean = None
         self.std = None
