@@ -159,7 +159,7 @@ class RLNN(nn.Module):
 
 class function_network(RLNN):
     def __init__(self, in_features, hidden_sizes, activation):
-        super(function_B, self).__init__()
+        super(function_network, self).__init__()
         self.action_dim = 1 # action_space.shape[0]
         # self.output_activation = output_activation
         self.mean = None
