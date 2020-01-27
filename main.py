@@ -238,7 +238,9 @@ class Engine(object):
         for params in self.es_params:
             self.actor.set_params(params)
             z = _calucalue_z_test(function_A,self.actor)
-            self.all_fitness.append(z)
+            self.all_fitness.append(abs(z))
+
+        print(self.all_fitness)
 
         return self.all_fitness
 
