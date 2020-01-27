@@ -201,7 +201,7 @@ def _calucalue_z_test(function_target,function_network):
 # input x, output y
 class function_target(object):
     def __init__(self):
-        super(function_A, self).__init__()
+        super(function_target, self).__init__()
         self.mean = None
         self.std = None
         self.values = []
