@@ -194,7 +194,8 @@ class function_network(RLNN):
 
 def _calucalue_z_test(function_target,function_network):
     function_network.mean_std()
-    z = (function_target.mean-function_network.mean)/math.sqrt(pow(function_target.std,2)+pow(function_network.std,2))
+    z = abs(function_target.mean-function_network.mean)+abs(function_target.std-function_network.std)
+    # z = (function_target.mean-function_network.mean)/math.sqrt(pow(function_target.std,2)+pow(function_network.std,2))
     return z
 
 
@@ -239,8 +240,7 @@ class Engine(object):
             z = _calucalue_z_test(function_target,self.actor)
             self.all_fitness.append(abs(z))
 
-        print(self.all_fitness)
-
+        # print(self.all_fitness)
         return self.all_fitness
 
     def evolve(self):
@@ -259,7 +259,7 @@ class Engine(object):
             y_b = self.actor(x)
             if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
                 wrong_number += 1
-        print(wrong_number)
+        # print(wrong_number)
         return wrong_number/(UP-DOWN)
 
 
@@ -286,12 +286,11 @@ if __name__ == '__main__':
         ray_get_and_free(engine.calucalue_fitness.remote(function_target))
         ray_get_and_free(engine.evolve.remote())
         elite_fitness = ray_get_and_free(engine.evaluate_actor.remote(function_target))
-        print("elite_fitness",elite_fitness)
         if elite_fitness < 0.0001:
             break
         timesteps += 1
 
-        if timesteps % 5 == 0:
+        if timesteps % 15 == 0:
             print("function_target, mean, std",function_target.mean,function_target.std)
             mean,std = ray_get_and_free(engine.get_mean_std.remote())
             print("function_network, mean, std",mean,std)
