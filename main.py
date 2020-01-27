@@ -194,12 +194,17 @@ class function_network(RLNN):
 
 def _calucalue_fitness(function_target,function_network):
     wrong_number = 0
+    function_network.mean_std()     
+
     for x in range(DOWN,UP):
         y_a = function_target.calculate(x)
         y_b = function_network(x)
         if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
             wrong_number += 1
-    return wrong_number/(UP-DOWN)
+
+    z = abs(function_target.mean-function_network.mean)+abs(function_target.std-function_network.std)+wrong_number
+
+    return z
 
 
 # input x, output y
@@ -270,7 +275,7 @@ class Engine(object):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pop_size', type=int, default=50)
+    parser.add_argument('--pop_size', type=int, default=40)
     # CEM
     parser.add_argument('--sigma_init', default=1e-3, type=float)
     parser.add_argument('--damp', default=1e-3, type=float)
