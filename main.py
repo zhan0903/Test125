@@ -243,7 +243,7 @@ class Engine(object):
             z = _calucalue_fitness(function_target,self.actor)
             self.all_fitness.append(abs(z))
 
-        # print(self.all_fitness)
+        print(self.all_fitness)
         return self.all_fitness
 
     def evolve(self):
