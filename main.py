@@ -157,7 +157,7 @@ class RLNN(nn.Module):
 
 
 
-class function_B(RLNN):
+class function_network(RLNN):
     def __init__(self, in_features, hidden_sizes, activation):
         super(function_B, self).__init__()
         self.action_dim = 1 # action_space.shape[0]
@@ -189,26 +189,23 @@ class function_B(RLNN):
         # print(self.values)
         self.mean = np.mean(self.values)
         self.std = np.std(self.values)
-        print("function_B,self.mean,self.std",self.mean,self.std)
+        print("function_network,self.mean,self.std",self.mean,self.std)
 
 
-def _calucalue_z_test(function_A,function_B):
-    function_B.mean_std()
-    z = (function_A.mean-function_B.mean)/math.sqrt(pow(function_A.std,2)+pow(function_B.std,2))
+def _calucalue_z_test(function_target,function_network):
+    function_network.mean_std()
+    z = (function_target.mean-function_network.mean)/math.sqrt(pow(function_target.std,2)+pow(function_network.std,2))
     return z
 
 
 # input x, output y
-class function_A(object):
+class function_target(object):
     def __init__(self):
         super(function_A, self).__init__()
         self.mean = None
         self.std = None
         self.values = []
         self.mean_std()
-
-
-
 
     def calculate(self,x):
         # return np.log(x)
@@ -221,7 +218,7 @@ class function_A(object):
         self.mean = np.mean(self.values)
         self.std = np.std(self.values)
 
-        print("function_A,mean,std",self.mean,self.std)
+        print("function_target,mean,std",self.mean,self.std)
 
 
 @ray.remote
@@ -229,11 +226,11 @@ class Engine(object):
     def __init__(self,args):
         self.args = args
 
-        self.actor = function_B(1,(256, 256), torch.relu)
+        self.actor = function_network(1,(256, 256), torch.relu)
         self.es = sepCEM(self.actor.get_size(), mu_init=self.actor.get_params(), sigma_init=args.sigma_init, damp=args.damp, damp_limit=args.damp_limit,
         pop_size=args.pop_size, antithetic=not args.pop_size % 2, parents=args.pop_size // 2, elitism=args.elitism)
 
-    def calucalue_fitness(self,function_A):
+    def calucalue_fitness(self,function_target):
         explorer_list_ids = []
         experiences_episode = []
         self.all_fitness = []
@@ -242,7 +239,7 @@ class Engine(object):
 
         for params in self.es_params:
             self.actor.set_params(params)
-            z = _calucalue_z_test(function_A,self.actor)
+            z = _calucalue_z_test(function_target,self.actor)
             self.all_fitness.append(abs(z))
 
         print(self.all_fitness)
@@ -252,15 +249,14 @@ class Engine(object):
     def evolve(self):
         self.es.tell(self.es_params, self.all_fitness)
 
-    def evaluate_actor(self,function_A):
+    def evaluate_actor(self,function_target):
         wrong_number = 0
         self.actor.set_params(self.es.elite)
         for x in range(DOWN,UP):
-            y_a = function_A.calculate(x)
+            y_a = function_target.calculate(x)
             y_b = self.actor(x)
 
-            # print("y_a-y_b",(y_a-y_b))
-
+            # print("y_a-y_b",(y_a-y_b)
 
             if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
                 wrong_number += 1
@@ -285,12 +281,12 @@ if __name__ == '__main__':
 
     engine = Engine.remote(args)
     timesteps = 0
-    function_A = function_A()
+    function_target = function_target()
 
     while True:
-        ray_get_and_free(engine.calucalue_fitness.remote(function_A))
+        ray_get_and_free(engine.calucalue_fitness.remote(function_target))
         ray_get_and_free(engine.evolve.remote())
-        elite_fitness = ray_get_and_free(engine.evaluate_actor.remote(function_A))
+        elite_fitness = ray_get_and_free(engine.evaluate_actor.remote(function_target))
         print("elite_fitness",elite_fitness)
         if elite_fitness < 0.0001:
             break
