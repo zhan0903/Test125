@@ -193,7 +193,6 @@ class function_B(RLNN):
 
 def _calucalue_z_test(function_A,function_B):
     function_B.mean_std()
-
     z = (function_A.mean-function_B.mean)/math.sqrt(pow(function_A.std,2)+pow(function_B.std,2))
     return z
 
@@ -253,6 +252,8 @@ class Engine(object):
         for x in range(DOWN,UP):
             y_a = function_A.calculate(x)
             y_b = self.actor(x)
+
+            print("y_a-y_b",(y_a-y_b))
 
 
             if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
