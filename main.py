@@ -14,8 +14,8 @@ MAX_FREE_QUEUE_SIZE = 100 #100
 _last_free_time = 0.0
 _to_free = []
 
-DOWN = -100
-UP = 101
+DOWN = -10
+UP = 10
 
 
 
@@ -253,9 +253,11 @@ class Engine(object):
         for x in range(DOWN,UP):
             y_a = function_A.calculate(x)
             y_b = self.actor(x)
+
+
             if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
                 wrong_number += 1
-
+        print(wrong_number)
         return wrong_number/(UP-DOWN)
 
 
