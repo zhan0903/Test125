@@ -14,6 +14,9 @@ MAX_FREE_QUEUE_SIZE = 100 #100
 _last_free_time = 0.0
 _to_free = []
 
+DOWN = -100
+UP = 101
+
 
 
 def ray_get_and_free(object_ids):
@@ -180,10 +183,10 @@ class function_B(RLNN):
 
     def mean_std(self):
         self.values = []
-        for x in range(-1,1):
+        for x in range(DOWN,UP):
             y = self.forward(x)
             self.values.append(y)
-        print(self.values)
+        # print(self.values)
         self.mean = np.mean(self.values)
         self.std = np.std(self.values)
 
@@ -209,7 +212,7 @@ class function_A(object):
         return pow(x,2)
 
     def mean_std(self):
-        for x in range(-1,1):
+        for x in range(DOWN,UP):
             y = self.calculate(x)
             self.values.append(y)
         self.mean = np.mean(self.values)
@@ -244,7 +247,7 @@ class Engine(object):
 
     def evaluate_actor(self,function_A):
         wrong_number = 0
-        for x in range(-1000,1001):
+        for x in range(DOWN,UP):
             y_a = function_A.calculate(x)
             y_b = self.actor(x)
             if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
