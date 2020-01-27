@@ -189,7 +189,7 @@ class function_network(RLNN):
         # print(self.values)
         self.mean = np.mean(self.values)
         self.std = np.std(self.values)
-        print("function_network,self.mean,self.std",self.mean,self.std)
+        # print("function_network,self.mean,self.std",self.mean,self.std)
 
 
 def _calucalue_z_test(function_target,function_network):
@@ -217,9 +217,6 @@ class function_target(object):
             self.values.append(y)
         self.mean = np.mean(self.values)
         self.std = np.std(self.values)
-
-        print("function_target,mean,std",self.mean,self.std)
-
 
 @ray.remote
 class Engine(object):
@@ -249,15 +246,17 @@ class Engine(object):
     def evolve(self):
         self.es.tell(self.es_params, self.all_fitness)
 
+    def get_mean_std(self):
+        return self.actor.mean, self.actor.std
+
     def evaluate_actor(self,function_target):
         wrong_number = 0
         self.actor.set_params(self.es.elite)
+        self.actor.mean_std()
+
         for x in range(DOWN,UP):
             y_a = function_target.calculate(x)
             y_b = self.actor(x)
-
-            # print("y_a-y_b",(y_a-y_b)
-
             if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
                 wrong_number += 1
         print(wrong_number)
@@ -291,6 +290,16 @@ if __name__ == '__main__':
         if elite_fitness < 0.0001:
             break
         timesteps += 1
+
+        if timesteps % 5 == 0:
+            print("function_target, mean, std",function_target.mean,function_target.std)
+            mean,std = ray_get_and_free(engine.get_mean_std.remote())
+            print("function_network, mean, std",mean,std)
+
+
+
+
+
 
 
 
