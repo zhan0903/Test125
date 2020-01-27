@@ -268,8 +268,6 @@ if __name__ == '__main__':
 
     ray.init(include_webui=False, ignore_reinit_error=True, object_store_memory=10000000000,memory=10000000000)#10000000000,memory=10000000000)
 
-
-
     engine = Engine.remote(args)
     timesteps = 0
     function_A = function_A()
@@ -277,7 +275,7 @@ if __name__ == '__main__':
     while True:
         ray_get_and_free(engine.calucalue_fitness.remote(function_A))
         ray_get_and_free(engine.evolve.remote())
-        elite_fitness = ray_get_and_free(evaluate_actor.remote(function_A))
+        elite_fitness = ray_get_and_free(engine.evaluate_actor.remote(function_A))
         if elite_fitness < 0.0001:
             break
 
