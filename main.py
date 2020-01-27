@@ -175,9 +175,11 @@ class function_B(RLNN):
         return mu.cpu().detach().numpy()[0]
 
     def mean_std(self):
+        self.values = []
         for x in range(-1000,1001):
             y = self.forward(x)
             self.values.append(y)
+        print(self.values)
         self.mean = statistics.mean(self.values)
         self.std = statistics.pstdev(self.values)
 
