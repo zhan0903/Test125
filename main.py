@@ -14,8 +14,8 @@ MAX_FREE_QUEUE_SIZE = 100 #100
 _last_free_time = 0.0
 _to_free = []
 
-DOWN = -10
-UP = 10
+DOWN = -30
+UP = 30
 
 
 
@@ -189,6 +189,7 @@ class function_B(RLNN):
         # print(self.values)
         self.mean = np.mean(self.values)
         self.std = np.std(self.values)
+        print("function_B,self.mean,self.std",self.mean,self.std)
 
 
 def _calucalue_z_test(function_A,function_B):
@@ -206,6 +207,9 @@ class function_A(object):
         self.values = []
         self.mean_std()
 
+
+
+
     def calculate(self,x):
         # return np.log(x)
         return pow(x,2)
@@ -216,6 +220,8 @@ class function_A(object):
             self.values.append(y)
         self.mean = np.mean(self.values)
         self.std = np.std(self.values)
+
+        print("function_A,mean,std",self.mean,self.std)
 
 
 @ray.remote
@@ -253,7 +259,7 @@ class Engine(object):
             y_a = function_A.calculate(x)
             y_b = self.actor(x)
 
-            print("y_a-y_b",(y_a-y_b))
+            # print("y_a-y_b",(y_a-y_b))
 
 
             if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
