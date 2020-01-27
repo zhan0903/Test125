@@ -180,10 +180,8 @@ class function_B(RLNN):
             y = self.forward(x)
             self.values.append(y)
         print(self.values)
-        self.mean = statistics.mean(self.values)
-        self.std = statistics.pstdev(self.values)
-
-
+        self.mean = np.mean(self.values)
+        self.std = np.std(self.values)
 
 
 def _calucalue_z_test(function_A,function_B):
@@ -210,8 +208,8 @@ class function_A(object):
         for x in range(-1,1):
             y = self.calculate(x)
             self.values.append(y)
-        self.mean = statistics.mean(self.values)
-        self.std = statistics.pstdev(self.values)
+        self.mean = np.mean(self.values)
+        self.std = np.std(self.values)
 
 
 @ray.remote
