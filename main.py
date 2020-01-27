@@ -202,7 +202,7 @@ def _calucalue_fitness(function_target,function_network):
         if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
             wrong_number += 1
 
-    z = abs(function_target.mean-function_network.mean)+abs(function_target.std-function_network.std)+wrong_number
+    z = 0.2*abs(function_target.mean-function_network.mean)+0.2*abs(function_target.std-function_network.std)+0.6*wrong_number
 
     return z
 
@@ -254,8 +254,8 @@ class Engine(object):
     def evolve(self):
         self.es.tell(self.es_params, self.all_fitness)
 
-    def get_mean_std(self):
-        return self.actor.mean, self.actor.std
+    def get_mean_std_fitness(self):
+        return self.actor.mean, self.actor.std,self.all_fitness
 
     def evaluate_actor(self,function_target):
         wrong_number = 0
@@ -275,7 +275,7 @@ class Engine(object):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pop_size', type=int, default=40)
+    parser.add_argument('--pop_size', type=int, default=100)
     # CEM
     parser.add_argument('--sigma_init', default=1e-3, type=float)
     parser.add_argument('--damp', default=1e-3, type=float)
