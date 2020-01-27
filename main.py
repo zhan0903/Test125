@@ -176,7 +176,7 @@ class function_B(RLNN):
 
     def mean_std(self):
         self.values = []
-        for x in range(-100,101):
+        for x in range(-1,1):
             y = self.forward(x)
             self.values.append(y)
         print(self.values)
@@ -207,7 +207,7 @@ class function_A(object):
         return pow(x,2)
 
     def mean_std(self):
-        for x in range(-100,101):
+        for x in range(-1,1):
             y = self.calculate(x)
             self.values.append(y)
         self.mean = statistics.mean(self.values)
