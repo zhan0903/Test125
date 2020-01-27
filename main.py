@@ -194,7 +194,7 @@ class function_B(RLNN):
 def _calucalue_z_test(function_A,function_B):
     function_B.mean_std()
 
-    z = (function_A.mean-function_B.mean)/math.sqrt(function_A.std+function_B.std)
+    z = (function_A.mean-function_B.mean)/math.sqrt(pow(function_A.std,2)+pow(function_B.std,2))
     return z
 
 
@@ -251,11 +251,11 @@ class Engine(object):
         wrong_number = 0
         for x in range(DOWN,UP):
             y_a = function_A.calculate(x)
-            y_b = self.actor(x)
+            y_b = self.es.elite(x)
             if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
                 wrong_number += 1
 
-        return wrong_number/2001
+        return wrong_number/(UP-DOWN)
 
 
 
@@ -281,9 +281,9 @@ if __name__ == '__main__':
         ray_get_and_free(engine.calucalue_fitness.remote(function_A))
         ray_get_and_free(engine.evolve.remote())
         elite_fitness = ray_get_and_free(engine.evaluate_actor.remote(function_A))
+        print("elite_fitness",elite_fitness)
         if elite_fitness < 0.0001:
             break
-
         timesteps += 1
 
 
