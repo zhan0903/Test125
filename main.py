@@ -249,9 +249,10 @@ class Engine(object):
 
     def evaluate_actor(self,function_A):
         wrong_number = 0
+        self.actor.set_params(self.es.elite)
         for x in range(DOWN,UP):
             y_a = function_A.calculate(x)
-            y_b = self.es.elite(x)
+            y_b = self.actor(x)
             if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
                 wrong_number += 1
 
