@@ -176,7 +176,7 @@ class function_B(RLNN):
 
     def mean_std(self):
         self.values = []
-        for x in range(-1000,1001):
+        for x in range(-100,101):
             y = self.forward(x)
             self.values.append(y)
         print(self.values)
@@ -197,7 +197,6 @@ def _calucalue_z_test(function_A,function_B):
 class function_A(object):
     def __init__(self):
         super(function_A, self).__init__()
-        self.x_range = [-1000,1000]
         self.mean = None
         self.std = None
         self.values = []
@@ -208,7 +207,7 @@ class function_A(object):
         return pow(x,2)
 
     def mean_std(self):
-        for x in range(-1000,1001):
+        for x in range(-100,101):
             y = self.calculate(x)
             self.values.append(y)
         self.mean = statistics.mean(self.values)
