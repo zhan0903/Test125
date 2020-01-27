@@ -192,11 +192,14 @@ class function_network(RLNN):
         # print("function_network,self.mean,self.std",self.mean,self.std)
 
 
-def _calucalue_z_test(function_target,function_network):
-    function_network.mean_std()
-    z = abs(function_target.mean-function_network.mean)+abs(function_target.std-function_network.std)
-    # z = (function_target.mean-function_network.mean)/math.sqrt(pow(function_target.std,2)+pow(function_network.std,2))
-    return z
+def _calucalue_fitness(function_target,function_network):
+    wrong_number = 0
+    for x in range(DOWN,UP):
+        y_a = function_target.calculate(x)
+        y_b = function_network(x)
+        if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
+            wrong_number += 1
+    return wrong_number/(UP-DOWN)
 
 
 # input x, output y
@@ -237,7 +240,7 @@ class Engine(object):
 
         for params in self.es_params:
             self.actor.set_params(params)
-            z = _calucalue_z_test(function_target,self.actor)
+            z = _calucalue_fitness(function_target,self.actor)
             self.all_fitness.append(abs(z))
 
         # print(self.all_fitness)
