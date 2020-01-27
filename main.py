@@ -9,6 +9,10 @@ from copy import deepcopy
 
 USE_CUDA = torch.cuda.is_available()
 
+FREE_DELAY_S = 10.0
+MAX_FREE_QUEUE_SIZE = 100 #100
+_last_free_time = 0.0
+_to_free = []
 
 
 
