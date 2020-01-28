@@ -195,7 +195,7 @@ class function_network(RLNN):
 
 def _calucalue_fitness(function_target,function_network):
     wrong_number = 0
-    # function_network.mean_std()     
+    function_network.mean_std()     
 
     for x in range(DOWN,UP):
         y_a = function_target.calculate(x)
@@ -203,10 +203,8 @@ def _calucalue_fitness(function_target,function_network):
         if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
             wrong_number += 1
 
-    # z = 0.2*abs(function_target.mean-function_network.mean)+0.2*abs(function_target.std-function_network.std)+0.6*wrong_number
-    z = wrong_number
-
-
+    z = 0.2*abs(function_target.mean-function_network.mean)+0.2*abs(function_target.std-function_network.std)+0.6*wrong_number
+    # z = wrong_number
     return z
 
 
@@ -229,6 +227,21 @@ class function_target(object):
             self.values.append(y)
         self.mean = np.mean(self.values)
         self.std = np.std(self.values)
+
+@ray.remote
+class Engine_kl(object):
+    def __init__(self,args):
+        pass
+
+
+    def calucalue_fitness(self,function_target):
+        pass
+
+
+    def evolve(self):
+        pass
+
+
 
 
 @ray.remote
