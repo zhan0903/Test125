@@ -364,6 +364,7 @@ if __name__ == '__main__':
     engine = Engine_cem.remote(args)
     timesteps = 0
     function_target = function_target()
+    time_start = time.time()
 
     while True:
         ray_get_and_free(engine.calucalue_fitness.remote(function_target))
@@ -379,6 +380,8 @@ if __name__ == '__main__':
             mean,std = ray_get_and_free(engine.get_mean_std.remote())
             print("function_network, mean, std",mean,std)
             # print("fitness",fitness)
+            print("timesteps",timesteps)
+            print("time",int(time.time()-time_start))
 
 
 
