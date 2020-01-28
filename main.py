@@ -329,6 +329,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--pop_size', type=int, default=100)
+    parser.add_argument('--seed', '-s', type=int, default=0)
     # CEM
     parser.add_argument('--sigma_init', default=1e-3, type=float)
     parser.add_argument('--damp', default=1e-3, type=float)
