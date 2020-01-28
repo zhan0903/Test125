@@ -4,6 +4,7 @@ import torch.nn as nn
 import statistics
 import numpy as np
 from copy import deepcopy
+from erl import SSNE
 
 
 
@@ -194,7 +195,7 @@ class function_network(RLNN):
 
 def _calucalue_fitness(function_target,function_network):
     wrong_number = 0
-    function_network.mean_std()     
+    # function_network.mean_std()     
 
     for x in range(DOWN,UP):
         y_a = function_target.calculate(x)
@@ -202,7 +203,9 @@ def _calucalue_fitness(function_target,function_network):
         if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
             wrong_number += 1
 
-    z = 0.2*abs(function_target.mean-function_network.mean)+0.2*abs(function_target.std-function_network.std)+0.6*wrong_number
+    # z = 0.2*abs(function_target.mean-function_network.mean)+0.2*abs(function_target.std-function_network.std)+0.6*wrong_number
+    z = wrong_number
+
 
     return z
 
@@ -227,8 +230,58 @@ class function_target(object):
         self.mean = np.mean(self.values)
         self.std = np.std(self.values)
 
+
 @ray.remote
-class Engine(object):
+class Engine_erl(object):
+    def __init__(self,args):
+        self.args = args
+        self.pop = []
+        self.evolver = SSNE(args)
+
+        self.actor = function_network(1,(256, 256), torch.relu)
+        for i in range(args.pop_size):
+            actor = function_network(1,(256, 256), torch.relu)#.to(device)
+            actor.eval()
+            self.pop.append(actor)
+
+        # self.es = sepCEM(self.actor.get_size(), mu_init=self.actor.get_params(), sigma_init=args.sigma_init, damp=args.damp, damp_limit=args.damp_limit,
+        # pop_size=args.pop_size, antithetic=not args.pop_size % 2, parents=args.pop_size // 2, elitism=args.elitism)
+
+    def calucalue_fitness(self,function_target):
+        self.all_fitness = []
+
+        for actor in self.pop:
+            # self.actor.set_params(params)
+            z = _calucalue_fitness(function_target,self.actor)
+            self.all_fitness.append(abs(z))
+
+        # print(self.all_fitness)
+        return self.all_fitness
+
+    def evolve(self):
+        self.elite_index = self.evolver.epoch(self.pop,self.all_fitness)
+
+    def get_mean_std(self):
+        return self.actor.mean, self.actor.std
+
+    def evaluate_actor(self,function_target):
+        wrong_number = 0
+        # self.actor.set_params(self.es.elite)
+        self.actor = self.pop[self.elite_index]
+        # self.actor.mean_std()
+
+        for x in range(DOWN,UP):
+            y_a = function_target.calculate(x)
+            y_b = self.actor(x)
+            if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
+                wrong_number += 1
+        # print(wrong_number)
+        return wrong_number/(UP-DOWN)
+
+
+
+@ray.remote
+class Engine_cem(object):
     def __init__(self,args):
         self.args = args
 
@@ -281,12 +334,18 @@ if __name__ == '__main__':
     parser.add_argument('--damp', default=1e-3, type=float)
     parser.add_argument('--damp_limit', default=1e-5, type=float)
     parser.add_argument('--elitism', dest="elitism",  action='store_true') # defult False
+    # ERL
+    parser.add_argument('--elite_fraction',type=float,default=0.2) 
+    parser.add_argument('--crossover_prob',type=float,default=0.15)
+    parser.add_argument('--mutation_prob',type=float,default=0.90)
+    parser.add_argument('--weight_magnitude_limit',type=int,default=10000000)
+
 
     args = parser.parse_args()
 
     ray.init(include_webui=False, ignore_reinit_error=True, object_store_memory=10000000000,memory=10000000000)#10000000000,memory=10000000000)
 
-    engine = Engine.remote(args)
+    engine = Engine_erl.remote(args)
     timesteps = 0
     function_target = function_target()
 
@@ -300,9 +359,9 @@ if __name__ == '__main__':
 
         if timesteps % 15 == 0:
             print("elite_fitness",elite_fitness)
-            print("function_target, mean, std",function_target.mean,function_target.std)
-            mean,std = ray_get_and_free(engine.get_mean_std.remote())
-            print("function_network, mean, std",mean,std)
+            # print("function_target, mean, std",function_target.mean,function_target.std)
+            # mean,std = ray_get_and_free(engine.get_mean_std.remote())
+            # print("function_network, mean, std",mean,std)
             # print("fitness",fitness)
 
 
