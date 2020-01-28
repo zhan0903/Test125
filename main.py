@@ -373,9 +373,9 @@ if __name__ == '__main__':
 
         if timesteps % 15 == 0:
             print("elite_fitness",elite_fitness)
-            # print("function_target, mean, std",function_target.mean,function_target.std)
-            # mean,std = ray_get_and_free(engine.get_mean_std.remote())
-            # print("function_network, mean, std",mean,std)
+            print("function_target, mean, std",function_target.mean,function_target.std)
+            mean,std = ray_get_and_free(engine.get_mean_std.remote())
+            print("function_network, mean, std",mean,std)
             # print("fitness",fitness)
 
 
