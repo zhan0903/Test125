@@ -15,8 +15,8 @@ MAX_FREE_QUEUE_SIZE = 100 #100
 _last_free_time = 0.0
 _to_free = []
 
-DOWN = -30
-UP = 30
+DOWN = -1000
+UP = 1000
 
 
 
