@@ -254,8 +254,8 @@ class Engine(object):
     def evolve(self):
         self.es.tell(self.es_params, self.all_fitness)
 
-    def get_mean_std_fitness(self):
-        return self.actor.mean, self.actor.std,self.all_fitness
+    def get_mean_std(self):
+        return self.actor.mean, self.actor.std
 
     def evaluate_actor(self,function_target):
         wrong_number = 0
@@ -301,9 +301,9 @@ if __name__ == '__main__':
         if timesteps % 15 == 0:
             print("elite_fitness",elite_fitness)
             print("function_target, mean, std",function_target.mean,function_target.std)
-            mean,std,fitness = ray_get_and_free(engine.get_mean_std_fitness.remote())
+            mean,std = ray_get_and_free(engine.get_mean_std.remote())
             print("function_network, mean, std",mean,std)
-            print("fitness",fitness)
+            # print("fitness",fitness)
 
 
 
