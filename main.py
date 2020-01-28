@@ -275,13 +275,15 @@ class Engine_erl(object):
         self.elite_index = self.evolver.epoch(self.pop,self.all_fitness)
 
     def get_mean_std(self):
+        # self.actor = self.pop[self.elite_index]
+        # self.actor.mean_std()
         return self.actor.mean, self.actor.std
 
     def evaluate_actor(self,function_target):
         wrong_number = 0
         # self.actor.set_params(self.es.elite)
         self.actor = self.pop[self.elite_index]
-        # self.actor.mean_std()
+        self.actor.mean_std()
 
         for x in range(DOWN,UP):
             y_a = function_target.calculate(x)
