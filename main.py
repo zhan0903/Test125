@@ -353,7 +353,7 @@ class Engine_cem(object):
 @ray.remote
 class Engine_ls:
     def __init__(self,args):
-        super(Engine_ls, self).__init__(args)
+        super(Engine_ls, self).__init__()
         self.args = args
         self.actor = function_network(8,(256, 256), torch.relu)
 
