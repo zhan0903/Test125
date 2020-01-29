@@ -15,8 +15,8 @@ MAX_FREE_QUEUE_SIZE = 100 #100
 _last_free_time = 0.0
 _to_free = []
 
-DOWN = -1000
-UP = 1000
+DOWN = -30
+UP = 30
 
 
 
@@ -177,7 +177,7 @@ class function_network(RLNN):
             in_features=list(hidden_sizes)[-1], out_features=self.action_dim)
 
     def forward(self, x):
-        output = self.net(torch.Tensor([x]))
+        output = self.net(torch.Tensor(x))
         mu = self.mu(output)
         # mu = torch.tanh(mu)
         return mu.cpu().detach().numpy()[0]
@@ -242,8 +242,6 @@ class Engine_kl(object):
         pass
 
 
-
-
 @ray.remote
 class Engine_erl(object):
     def __init__(self,args):
@@ -294,7 +292,6 @@ class Engine_erl(object):
         return wrong_number/(UP-DOWN)
 
 
-
 @ray.remote
 class Engine_cem(object):
     def __init__(self,args):
@@ -303,6 +300,20 @@ class Engine_cem(object):
         self.actor = function_network(1,(256, 256), torch.relu)
         self.es = sepCEM(self.actor.get_size(), mu_init=self.actor.get_params(), sigma_init=args.sigma_init, damp=args.damp, damp_limit=args.damp_limit,
         pop_size=args.pop_size, antithetic=not args.pop_size % 2, parents=args.pop_size // 2, elitism=args.elitism)
+
+    def _calucalue_fitness(self,function_target,function_network):
+        wrong_number = 0
+        function_network.mean_std()     
+
+        for x in range(DOWN,UP):
+            y_a = function_target.calculate(x)
+            y_b = function_network(x)
+            if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
+                wrong_number += 1
+
+        z = 0.2*abs(function_target.mean-function_network.mean)+0.2*abs(function_target.std-function_network.std)+0.6*wrong_number
+        # z = wrong_number
+        return z
 
     def calucalue_fitness(self,function_target):
         explorer_list_ids = []
@@ -339,6 +350,66 @@ class Engine_cem(object):
         return wrong_number/(UP-DOWN)
 
 
+@ray.remote
+class Engine_ls(Engine_cem):
+    def __init__(self,args):
+        super(Engine_ls, self).__init__(args)
+        self.args = args
+        self.actor = function_network(8,(256, 256), torch.relu)
+
+        self.es = sepCEM(self.actor.get_size(), mu_init=self.actor.get_params(), sigma_init=args.sigma_init, damp=args.damp, damp_limit=args.damp_limit,
+        pop_size=args.pop_size, antithetic=not args.pop_size % 2, parents=args.pop_size // 2, elitism=args.elitism)
+
+    
+    def calucate_input(self,x):
+        return [1,x,pow(x,2),pow(x,3),pow(x,4),pow(x,5),pow(x,6),pow(x,7)]
+
+    # Least squares
+    def _calucalue_fitness(function_target,function_network):
+        r = 0    
+
+        for x in range(DOWN,UP):
+            y_a = function_target.calculate(x)
+            y_b = function_network(self.calucate_input(x))
+
+            r += pow(y_a-y_b,2)
+
+        return r
+
+    def calucalue_fitness(self,function_target):
+        explorer_list_ids = []
+        experiences_episode = []
+        self.all_fitness = []
+        timesteps_one_gen = 0
+        self.es_params = self.es.ask(self.args.pop_size)
+
+        for params in self.es_params:
+            self.actor.set_params(params)
+            z = _calucalue_fitness(function_target,self.actor)
+            self.all_fitness.append(abs(z))
+
+        return self.all_fitness
+
+    def evolve(self):
+        self.es.tell(self.es_params, self.all_fitness)
+
+    def get_mean_std(self):
+        return self.actor.mean, self.actor.std
+
+    def evaluate_actor(self,function_target):
+        wrong_number = 0
+        self.actor.set_params(self.es.elite)
+        self.actor.mean_std()
+
+        for x in range(DOWN,UP):
+            y_a = function_target.calculate(x)
+            y_b = self.actor(self.calucate_input(x))
+            if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
+                wrong_number += 1
+        # print(wrong_number)
+        return wrong_number/(UP-DOWN)
+
+
 
 if __name__ == '__main__':
     import argparse
@@ -361,25 +432,25 @@ if __name__ == '__main__':
 
     ray.init(include_webui=False, ignore_reinit_error=True, object_store_memory=10000000000,memory=10000000000)#10000000000,memory=10000000000)
 
-    engine = Engine_cem.remote(args)
+    engine = Engine_ls.remote(args)
     timesteps = 0
     function_target = function_target()
     time_start = time.time()
 
     while True:
-        ray_get_and_free(engine.calucalue_fitness.remote(function_target))
+        fitness = ray_get_and_free(engine.calucalue_fitness.remote(function_target))
         ray_get_and_free(engine.evolve.remote())
-        elite_fitness = ray_get_and_free(engine.evaluate_actor.remote(function_target))
-        if elite_fitness < 0.0001:
+        elite_score = ray_get_and_free(engine.evaluate_actor.remote(function_target))
+        if elite_score < 0.0001:
             break
         timesteps += 1
 
         if timesteps % 15 == 0:
-            print("elite_fitness",elite_fitness)
-            print("function_target, mean, std",function_target.mean,function_target.std)
-            mean,std = ray_get_and_free(engine.get_mean_std.remote())
-            print("function_network, mean, std",mean,std)
-            # print("fitness",fitness)
+            print("elite_score",elite_score)
+            # print("function_target, mean, std",function_target.mean,function_target.std)
+            # mean,std = ray_get_and_free(engine.get_mean_std.remote())
+            # print("function_network, mean, std",mean,std)
+            print("fitness",fitness)
             print("timesteps",timesteps)
             print("time",int(time.time()-time_start))
 
