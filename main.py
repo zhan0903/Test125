@@ -263,7 +263,7 @@ class Engine_base:
 @ray.remote
 class Engine_erl(Engine_base):
     def __init__(self,args):
-        super(Engine_erl, self).__init__()
+        # super(Engine_erl, self).__init__()
         self.args = args
         self.pop = []
         self.evolver = SSNE(args)
@@ -366,7 +366,7 @@ class Engine_ls(object):
 @ray.remote
 class Engine_cem(Engine_base):
     def __init__(self,args):
-        super(Engine_cem, self).__init__()
+        # super(Engine_cem, self).__init__()
         self.args = args
         self.actor = function_network(4,(256, 256), torch.relu)
         self.es = sepCEM(self.actor.get_size(), mu_init=self.actor.get_params(), sigma_init=args.sigma_init, damp=args.damp, damp_limit=args.damp_limit,
