@@ -15,8 +15,8 @@ MAX_FREE_QUEUE_SIZE = 100 #100
 _last_free_time = 0.0
 _to_free = []
 
-DOWN = -30
-UP = 30
+DOWN = -100
+UP = 100
 
 
 
@@ -459,7 +459,7 @@ if __name__ == '__main__':
         fitness = ray_get_and_free(engine.calucalue_fitness.remote(function_target))
         ray_get_and_free(engine.evolve.remote())
         elite_score = ray_get_and_free(engine.evaluate_actor.remote(function_target))
-        if elite_score < 0.01:
+        if elite_score < 0.1:
             break
         timesteps += 1
 
