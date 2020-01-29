@@ -193,19 +193,19 @@ class function_network(RLNN):
         # print("function_network,self.mean,self.std",self.mean,self.std)
 
 
-def _calucalue_fitness(function_target,function_network):
-    wrong_number = 0
-    function_network.mean_std()     
+# def _calucalue_fitness(function_target,function_network):
+#     wrong_number = 0
+#     function_network.mean_std()     
 
-    for x in range(DOWN,UP):
-        y_a = function_target.calculate(x)
-        y_b = function_network(x)
-        if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
-            wrong_number += 1
+#     for x in range(DOWN,UP):
+#         y_a = function_target.calculate(x)
+#         y_b = function_network(x)
+#         if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
+#             wrong_number += 1
 
-    z = 0.2*abs(function_target.mean-function_network.mean)+0.2*abs(function_target.std-function_network.std)+0.6*wrong_number
-    # z = wrong_number
-    return z
+#     z = 0.2*abs(function_target.mean-function_network.mean)+0.2*abs(function_target.std-function_network.std)+0.6*wrong_number
+#     # z = wrong_number
+#     return z
 
 
 # input x, output y
@@ -268,9 +268,9 @@ class Engine_erl(Engine_base):
         self.pop = []
         self.evolver = SSNE(args)
 
-        self.actor = function_network(4,(256, 256), torch.relu)
+        self.actor = function_network(4,(256), torch.relu)
         for i in range(args.pop_size):
-            actor = function_network(4,(256, 256), torch.relu)#.to(device)
+            actor = function_network(4,(256), torch.relu)#.to(device)
             actor.eval()
             self.pop.append(actor)
 
@@ -282,7 +282,7 @@ class Engine_erl(Engine_base):
 
         for actor in self.pop:
             # self.actor.set_params(params)
-            z = _calucalue_fitness(function_target,self.actor)
+            z = self._calucalue_fitness(function_target,self.actor)
             self.all_fitness.append(abs(z))
 
         # print(self.all_fitness)
