@@ -362,7 +362,7 @@ class Engine_ls:
 
     
     def calucate_input(self,x):
-        return [1,x,pow(x,2),pow(x,3),pow(x,4),pow(x,5),pow(x,6),pow(x,7)]
+        return [1,x,pow(x,2),pow(x,3)]
 
     # Least squares
     def _calucalue_fitness(self,function_target,function_network):
