@@ -449,7 +449,7 @@ if __name__ == '__main__':
     if args.engine == "erl":
         engine = Engine_erl.remote(args)
 
-    if args.engine == "cem"
+    if args.engine == "cem":
         engine = Engine_cem.remote(args)
 
     timesteps = 0
