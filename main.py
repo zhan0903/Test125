@@ -351,7 +351,7 @@ class Engine_cem(object):
 
 
 @ray.remote
-class Engine_ls(Engine_cem):
+class Engine_ls:
     def __init__(self,args):
         super(Engine_ls, self).__init__(args)
         self.args = args
