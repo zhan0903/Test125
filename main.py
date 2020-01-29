@@ -450,7 +450,7 @@ if __name__ == '__main__':
             # print("function_target, mean, std",function_target.mean,function_target.std)
             # mean,std = ray_get_and_free(engine.get_mean_std.remote())
             # print("function_network, mean, std",mean,std)
-            print("min fitness",min(fitness))
+            print("min fitness",int(min(fitness)))
             print("timesteps",timesteps)
             print("time",int(time.time()-time_start))
 
