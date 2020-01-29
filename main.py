@@ -355,7 +355,7 @@ class Engine_ls:
     def __init__(self,args):
         # super(Engine_ls, self).__init__()
         self.args = args
-        self.actor = function_network(8,(256, 256), torch.relu)
+        self.actor = function_network(4,(256, 256), torch.relu)
 
         self.es = sepCEM(self.actor.get_size(), mu_init=self.actor.get_params(), sigma_init=args.sigma_init, damp=args.damp, damp_limit=args.damp_limit,
         pop_size=args.pop_size, antithetic=not args.pop_size % 2, parents=args.pop_size // 2, elitism=args.elitism)
