@@ -299,7 +299,7 @@ class Engine_erl(Engine_base):
         for x in range(DOWN,UP):
             y_a = function_target.calculate(x)
             y_b = self.actor(self.calucate_input(x))
-            if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
+            if abs(y_a-y_b) > 0.01*(abs(y_a)+abs(y_b)):
                 wrong_number += 1
         # print(wrong_number)
         return wrong_number/(UP-DOWN)
@@ -411,14 +411,12 @@ class Engine_cem(Engine_base):
     def evaluate_actor(self,function_target):
         wrong_number = 0
         self.actor.set_params(self.es.elite)
-        # self.actor.mean_std()
 
         for x in range(DOWN,UP):
             y_a = function_target.calculate(x)
             y_b = self.actor(self.calucate_input(x))
-            if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
+            if abs(y_a-y_b) > 0.01*(abs(y_a)+abs(y_b)):
                 wrong_number += 1
-        # print(wrong_number)
         return wrong_number/(UP-DOWN)
 
 
@@ -455,17 +453,21 @@ if __name__ == '__main__':
     timesteps = 0
     function_target = function_target()
     time_start = time.time()
+    min_elite_score = 2
 
     while True:
         fitness = ray_get_and_free(engine.calucalue_fitness.remote(function_target))
         ray_get_and_free(engine.evolve.remote())
         elite_score = ray_get_and_free(engine.evaluate_actor.remote(function_target))
-        if elite_score < 0.0001:
+        if elite_score < 0.01:
             break
         timesteps += 1
 
+        if elite_score < min_elite_score:
+            min_elite_score = elite_score
+
         if timesteps % 15 == 0:
-            print("elite_score",elite_score)
+            print("min_elite_score",min_elite_score)
             # print("function_target, mean, std",function_target.mean,function_target.std)
             # mean,std = ray_get_and_free(engine.get_mean_std.remote())
             # print("function_network, mean, std",mean,std)
