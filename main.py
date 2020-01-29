@@ -268,9 +268,9 @@ class Engine_erl(Engine_base):
         self.pop = []
         self.evolver = SSNE(args)
 
-        self.actor = function_network(4,(256), torch.relu)
+        self.actor = function_network(4,(256,), torch.relu)
         for i in range(args.pop_size):
-            actor = function_network(4,(256), torch.relu)#.to(device)
+            actor = function_network(4,(256,), torch.relu)#.to(device)
             actor.eval()
             self.pop.append(actor)
 
