@@ -242,16 +242,35 @@ class Engine_kl(object):
         pass
 
 
+class Engine_base:
+
+    def calucate_input(self,x):
+        return [1,x,pow(x,2),pow(x,3)]
+
+    # Least squares
+    def _calucalue_fitness(self,function_target,function_network):
+        r = 0    
+
+        for x in range(DOWN,UP):
+            y_a = function_target.calculate(x)
+            y_b = function_network(self.calucate_input(x))
+
+            r += pow(y_a-y_b,2)
+        return r
+
+
+
 @ray.remote
-class Engine_erl(object):
+class Engine_erl(Engine_base):
     def __init__(self,args):
+        super(Engine_erl, self).__init__()
         self.args = args
         self.pop = []
         self.evolver = SSNE(args)
 
-        self.actor = function_network(1,(256, 256), torch.relu)
+        self.actor = function_network(4,(256, 256), torch.relu)
         for i in range(args.pop_size):
-            actor = function_network(1,(256, 256), torch.relu)#.to(device)
+            actor = function_network(4,(256, 256), torch.relu)#.to(device)
             actor.eval()
             self.pop.append(actor)
 
@@ -272,20 +291,14 @@ class Engine_erl(object):
     def evolve(self):
         self.elite_index = self.evolver.epoch(self.pop,self.all_fitness)
 
-    def get_mean_std(self):
-        # self.actor = self.pop[self.elite_index]
-        # self.actor.mean_std()
-        return self.actor.mean, self.actor.std
-
     def evaluate_actor(self,function_target):
         wrong_number = 0
         # self.actor.set_params(self.es.elite)
         self.actor = self.pop[self.elite_index]
-        self.actor.mean_std()
 
         for x in range(DOWN,UP):
             y_a = function_target.calculate(x)
-            y_b = self.actor(x)
+            y_b = self.actor(self.calucate_input(x))
             if abs(y_a-y_b) > 0.0001*(abs(y_a)+abs(y_b)):
                 wrong_number += 1
         # print(wrong_number)
@@ -293,7 +306,7 @@ class Engine_erl(object):
 
 
 @ray.remote
-class Engine_cem(object):
+class Engine_ls(object):
     def __init__(self,args):
         self.args = args
 
@@ -351,12 +364,11 @@ class Engine_cem(object):
 
 
 @ray.remote
-class Engine_ls:
+class Engine_cem(Engine_base):
     def __init__(self,args):
-        # super(Engine_ls, self).__init__()
+        super(Engine_cem, self).__init__()
         self.args = args
         self.actor = function_network(4,(256, 256), torch.relu)
-
         self.es = sepCEM(self.actor.get_size(), mu_init=self.actor.get_params(), sigma_init=args.sigma_init, damp=args.damp, damp_limit=args.damp_limit,
         pop_size=args.pop_size, antithetic=not args.pop_size % 2, parents=args.pop_size // 2, elitism=args.elitism)
 
@@ -416,6 +428,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--pop_size', type=int, default=20)
     parser.add_argument('--seed', '-s', type=int, default=0)
+    parser.add_argument('--engine', type=str, default="cem")
+
     # CEM
     parser.add_argument('--sigma_init', default=1e-3, type=float)
     parser.add_argument('--damp', default=1e-3, type=float)
@@ -432,7 +446,12 @@ if __name__ == '__main__':
 
     ray.init(include_webui=False, ignore_reinit_error=True, object_store_memory=10000000000,memory=10000000000)#10000000000,memory=10000000000)
 
-    engine = Engine_ls.remote(args)
+    if args.engine == "erl":
+        engine = Engine_erl.remote(args)
+
+    if args.engine == "cem"
+        engine = Engine_cem.remote(args)
+
     timesteps = 0
     function_target = function_target()
     time_start = time.time()
