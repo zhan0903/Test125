@@ -374,7 +374,8 @@ class Engine_cem(Engine_base):
 
     
     def calucate_input(self,x):
-        return [1,x,pow(x,2),pow(x,3)]
+        return [x]
+        # return [1,x,pow(x,2),pow(x,3)]
 
     # Least squares
     def _calucalue_fitness(self,function_target,function_network):
