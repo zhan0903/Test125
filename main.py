@@ -399,7 +399,7 @@ class Engine_ls:
     def evaluate_actor(self,function_target):
         wrong_number = 0
         self.actor.set_params(self.es.elite)
-        self.actor.mean_std()
+        # self.actor.mean_std()
 
         for x in range(DOWN,UP):
             y_a = function_target.calculate(x)
